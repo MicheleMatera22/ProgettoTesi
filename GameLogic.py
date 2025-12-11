@@ -111,7 +111,7 @@ class GameLogic:
 
         # Controllo errori
         if not options or not isinstance(options, list):
-            print("⚠️ Errore AI. Riprovo...")
+            print("Errore AI. Riprovo...")
             # Qui potresti mettere un return o una logica di retry limitata
             return None
 
@@ -139,3 +139,46 @@ class GameLogic:
 
             print("Scelta non valida.")
 
+    def generate_introduction(self):
+        # Controllo di sicurezza
+        if not self.state["genre"] or not self.state["archetype"]:
+            print("Dati mancanti per generare la storia.")
+            return
+
+        print("Scrivendo il prologo...")
+
+        # Prompt Ingegnerizzato per RPG
+        prompt = f"""
+        Sei il Narratore (Dungeon Master) di un'avventura testuale interattiva.
+
+        DETTAGLI:
+        - Genere: {self.state['genre']}
+        - Protagonista: {self.state['nickname']}
+        - Classe/Archetipo: {self.state['archetype']}
+
+        OBIETTIVO:
+        Scrivi l'introduzione della storia. Deve essere immersiva e atmosferica.
+
+        REGOLE FONDAMENTALI:
+        1. Usa la SECONDA PERSONA singolare ("Tu ti svegli...", "Tu vedi...").
+        2. Descrivi dove si trova il giocatore e qual è l'atmosfera.
+        3. Dai un motivo immediato per agire (un rumore, una missione, un pericolo, una porta chiusa).
+        4. NON decidere le azioni del giocatore. Descrivi la situazione e fermati, aspettando l'input.
+        5. Lunghezza: Massimo 10-12 righe.
+        """
+
+        # Chiamata all'AI
+        intro_text = self.call_ai_text(prompt)
+
+        # Pulizia e Salvataggio
+        if intro_text:
+            # Aggiungiamo al log della storia
+            self.state["story_log"].append(f"INTRO: {intro_text}")
+
+            # Stampa formattata
+            print(intro_text)
+
+            # Segnaliamo che il prologo è finito e il gioco inizia
+            self.state["awaiting_start"] = False
+        else:
+            print("Errore nella generazione dell'intro.")
