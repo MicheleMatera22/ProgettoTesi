@@ -85,3 +85,57 @@ class GameLogic:
                     return clean_genre
 
             print("Scelta non valida. Inserisci un numero da 1 a 5.")
+
+    def select_archetype(self):
+        if not self.state["genre"]:
+            print("Errore: Seleziona prima un genere!")
+            return
+
+        print(f"\n--- GENERAZIONE CLASSI ({self.state['genre']}) ---")
+        print("L'Oracolo sta individuando le classi disponibili...")
+
+        # 1. Prompt semplificato: Chiede SOLO una lista di nomi
+        prompt = f"""
+        Agisci come un Game Designer. Il genere è: "{self.state['genre']}".
+        Elenca 4 nomi di archetipi/classi giocabili per questo genere.
+
+        Rispondi ESCLUSIVAMENTE con un array JSON di stringhe.
+        Niente descrizioni, niente testo extra.
+
+        Esempio formato output:
+        ["Guerriero", "Mago", "Ladro", "Chierico"]
+        """
+
+        # 2. Chiamata AI
+        options = self.call_ai_json(prompt)
+
+        # Controllo errori
+        if not options or not isinstance(options, list):
+            print("⚠️ Errore AI. Riprovo...")
+            # Qui potresti mettere un return o una logica di retry limitata
+            return None
+
+        # 3. Mostra le opzioni (ora sono semplici stringhe)
+        print("\nScegli la tua classe:")
+        for index, name in enumerate(options, 1):
+            print(f"{index}. {name}")
+
+        # 4. Selezione Utente
+        while True:
+            choice = input("\nScegli il numero (1-4): ").strip()
+
+            if choice.isdigit():
+                idx = int(choice) - 1
+                if 0 <= idx < len(options):
+                    selected_name = options[idx]
+
+                    # Se per caso l'AI ha restituito un oggetto invece di una stringa, lo gestiamo
+                    if isinstance(selected_name, dict):
+                        selected_name = list(selected_name.values())[0]
+
+                    self.state["archetype"] = str(selected_name)
+                    print(f"Hai scelto: {selected_name}")
+                    return selected_name
+
+            print("Scelta non valida.")
+

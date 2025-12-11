@@ -31,6 +31,7 @@ if __name__ == "__main__":
 
     game.set_nickname()
     game.select_genre()
+    game.select_archetype()
 
     # Per verifica, stampiamo lo stato
     print(f"\nStato aggiornato: {game.state}")
